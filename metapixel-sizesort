@@ -1,0 +1,116 @@
+#!/usr/bin/perl
+
+# sizesort --- sort images to directories according to size.
+
+# Copyright (C) 2003-2006 Mark Probst, 2005 Christoph Weiss-Schaber
+# Copyright (C) 2005 Christoph Weiss-Schaber
+
+# Authors: Mark Probst <schani@complang.tuwien.ac.at>
+#          Christoph Weiss-Schaber <chris@xchaos.de>
+# Maintainer: Mark Probst <schani@complang.tuwien.ac.at>
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, you can either send email to this
+# program's maintainer or write to: The Free Software Foundation,
+# Inc.; 675 Massachusetts Avenue; Cambridge, MA 02139, USA.
+
+use strict;
+
+use Getopt::Long;
+
+sub usage {
+    print STDERR "Usage: $0 [OPTION]... <srcdir> <destdir>
+
+Moves all images in <srcdir> to subdirectories of <destdir> (which are
+created on the fly) bearing the name of the respective image's size or
+aspect ratio.
+
+  -h, --help           display this help and exit
+  -d, --delete         automatically deletes images which would normally
+                       be ignored because they are corrupted
+  -s, --size           sort by size
+  -r, --ratio=ACCURACY sort by aspect ratio to ACCURACY decimal places
+  -l, --symlink        symlink instead of move
+";
+    exit(1);
+}
+
+my $delete_images;
+my $sort_size;
+my $sort_ratio;
+my $symlink;
+
+if (!GetOptions("help|h", \&usage,
+		"delete|d", \$delete_images,
+		"size|s", \$sort_size,
+		"ratio|r=i", \$sort_ratio,
+		"symlink|l", \$symlink)) {
+    usage();
+}
+
+if ($#ARGV != 1) {
+    usage();
+}
+
+if (!$sort_size && !$sort_ratio) {
+    print STDERR "$0: you must specify a sorting criterion\n";
+    exit(1);
+}
+
+if ($sort_size && $sort_ratio) {
+    print STDERR "$0: you can only specify one sorting criterion\n";
+    exit(1);
+}
+
+my ($srcdir, $destdir) = @ARGV;
+
+if (! -d $srcdir || ! -r $srcdir) {
+    print "$0: directory $srcdir does not exist or is unreadable\n";
+    exit(1);
+}
+
+if (! -d $destdir ) {
+    print "$0: directory $destdir does not exist\n";
+    exit(1);
+}
+
+foreach my $filename (glob("$srcdir/*")) {
+    if (-f $filename && -r $filename) {
+	my ($w, $h) = split /\s+/, `metapixel-imagesize "$filename" 2>/dev/null`;
+	if ($? != 0 || $w==0 || $h==0) {
+	    if ($delete_images) {
+		`rm "$filename"`;
+		print "warning: metapixel-imagesize failed for for $filename - deleted\n";
+	    } else {
+		print "warning: metapixel-imagesize failed for for $filename - ignored\n";
+	    }
+	} else {
+	    my $dir;
+	    if ($sort_size) {
+		$dir = sprintf "$destdir/size_%dx%d", $w, $h;
+		print "$filename $w $h\n";
+	    } else {
+		my $ratio = sprintf "%.${sort_ratio}f", ($w / $h);
+		print "$filename $w $h $ratio\n";
+		$dir = sprintf "$destdir/ratio_%s", $ratio;
+	    }
+
+	    `mkdir "$dir"` if (!-d $dir);
+	    if ($symlink) {
+		`ln -s "$filename" "$dir/"`;
+	    } else {
+		`mv "$filename" "$dir/"`;
+	    }
+        }
+    }
+}

@@ -1,0 +1,98 @@
+Changes in version 1.0.1:
+
+  * Bugfixes
+
+  * sizesort renamed to metapixel-sizesort.
+
+  * Improvements to metapixel-sizesort.
+
+  * RPM SPEC file added.
+
+Changes in version 1.0.0:
+
+  * Bugfixes
+
+Changes since version 0.11:
+
+  * The tables files must now always be in the directory where the
+    small images reside, and that directory is now called a "library".
+
+  * Metapixel can now take default values for its settings from a
+    configuration file in the user's home directory (".metapixelrc").
+
+  * Bugfixes
+
+Changes since version 0.10:
+
+  * Metapixel can now enforce a minimum image distance for
+    collages.
+
+  * metapixel-prepare can now traverse the image directory
+    recursively (courtesy of Jake Di Toro).
+
+  * The tables file must now no longer be redirected to stdin
+    but it's name must be given to the option '--tables'.
+    This option can be used several times, so more than one
+    tables file can be read.
+
+  * The default minimum distance for classical mosaics is
+    now 5 instead of 0.
+
+  * A rudimentary man page is now included (courtesy of
+    Debian's Chris Vanden Berghe).
+
+  * Reading the tables file is now more than twice as fast.
+
+  * Bugfixes
+
+Changes since version 0.9:
+
+  * Fixed a bug that prevented global search from working on
+    non-square images
+
+  * Got rid of libzoom, so now Metapixel is standard GPL
+
+  * Added the sizesort utility for sorting images by size
+
+Changes since version 0.8:
+
+  * Global search mode
+
+  * Protocol writing and reading
+
+  * Antimosaic
+
+Changes since version 0.7:
+
+  * Scaling of input image added
+
+  * Tremendous memory usage improvement for classical mosaics
+
+Changes since version 0.6:
+
+  * Introduces the subpixel image comparison metric
+
+Changes since version 0.5:
+
+  * Cheat option
+
+Changes since version 0.4:
+
+  * Bugfixes
+
+  * Minimum distance between two instances of the same constituent
+    image can be specified
+
+Changes since version 0.3:
+
+  * Bugfixes
+
+  * Speed improvements
+
+  * Got rid of ImageMagick
+
+Changes since version 0.2:
+
+  * Bugfixes
+
+  * Speed improvements
