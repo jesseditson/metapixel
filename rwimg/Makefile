@@ -7,8 +7,11 @@ all : librwimg.a
 librwimg.a : $(OBJS)
 	ar rcu librwimg.a $(OBJS)
 
+testrwimg : testrwimg.o
+	$(CC) -o testrwimg testrwimg.o librwimg.a -lpng -ljpeg -lgif
+
 %.o : %.c
-	$(CC) $(CCOPTS) $(FORMATDEFS) -g -c $<
+	$(CC) $(CFLAGS) $(FORMATDEFS) -g -c $<
 
 clean :
 	rm -f *~ $(OBJS) librwimg.a

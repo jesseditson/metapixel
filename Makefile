@@ -1,18 +1,18 @@
 PREFIX = /usr/local
 INSTALL = install
-MANPAGE_XSL = /sw/share/xml/xsl/docbook-xsl/manpages/docbook.xsl
+MANPAGE_XSL = /opt/local/share/xml/xsl/docbook-xsl/manpages/docbook.xsl
 
 BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)/share/man
 
-VERSION = 1.0.2
+VERSION = 1.0.3
 
 #DEBUG = -g
 OPTIMIZE = -O2
 #PROFILE = -pg
 
-MACOS_LDOPTS = -L/sw/lib
-MACOS_CCOPTS = -I/sw/include
+MACOS_LDOPTS = -L/usr/local/lib
+MACOS_CCOPTS = -I/usr/local/include
 
 FORMATDEFS = -DRWIMG_JPEG -DRWIMG_PNG -DRWIMG_GIF
 
