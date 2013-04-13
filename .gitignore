@@ -16,4 +16,6 @@
 .DS_Store
 
 # Metapixel
-/bin
+metapixel
+metapixel-imagesize
+convert
