@@ -1,4 +1,4 @@
-Metapixel 1.0.2
+Metapixel 1.0.3
 ===============
 
 Metapixel is a program for generating photomosaics.  It can generate

@@ -46,6 +46,9 @@
 #ifndef MAX
 #define MAX(a,b)           ((a)>(b)?(a):(b))
 #endif
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(x)  (sizeof(x) / sizeof(x[0]))
+#endif
 
 static int index_order[IMAGE_SIZE * IMAGE_SIZE];
 
@@ -2204,13 +2207,14 @@ main (int argc, char *argv[])
 	int i, channel;
 	unsigned char *image_data;
 	unsigned char *scaled_data;
+  int table_to_stdout, should_scale_image;
 	char *inimage_name, *outimage_name, *tables_name;
 	FILE *tables_file;
 	int in_width, in_height;
 	metapixel_t pixel;
 	lisp_object_t *obj;
 
-	if (argc - optind != 3)
+	if (argc - optind < 1 || argc - optind > 3)
 	{
 	    usage();
 	    return 1;
@@ -2219,31 +2223,52 @@ main (int argc, char *argv[])
 	assert(prepare_width > 0 && prepare_height > 0);
 
 	inimage_name = argv[optind + 0];
-	outimage_name = argv[optind + 1];
-	tables_name = argv[optind + 2];
+  if(ARRAY_SIZE(argv) > 1){
+    outimage_name = argv[optind + 1];
+    should_scale_image = 1;
+  } else {
+    outimage_name = inimage_name;
+    should_scale_image = 0;
+  }
+  if(ARRAY_SIZE(argv) > 2){
+    table_to_stdout = 0;
+  	tables_name = argv[optind + 2];
+  } else {
+    table_to_stdout = 1;
+  }
 
 	image_data = read_image(inimage_name, &in_width, &in_height);
-
-	if (image_data == 0)
-	{
-	    fprintf(stderr, "could not read image `%s'\n", inimage_name);
-	    return 1;
-	}
-
-	tables_file = fopen(tables_name, "ab");
-	if (tables_file == 0)
-	{
-	    fprintf(stderr, "could not open file `%s' for writing\n", tables_name);
-	    return 1;
-	}
+  if(should_scale_image){
+  	if (image_data == 0)
+  	{
+  	    fprintf(stderr, "could not read image `%s'\n", inimage_name);
+  	    return 1;
+  	}
+  }
+  
+  if(!table_to_stdout){
+  	tables_file = fopen(tables_name, "ab");
+  	if (tables_file == 0)
+  	{
+  	    fprintf(stderr, "could not open file `%s' for writing\n", tables_name);
+  	    return 1;
+  	}
+  } else {
+    tables_file = stdout;
+  }
 
 	/* generate small image */
-	scaled_data = scale_image(image_data, in_width, in_height, 0, 0,
-				  in_width, in_height, prepare_width, prepare_height);
-	assert(scaled_data != 0);
+  if(should_scale_image){
+  	scaled_data = scale_image(image_data, in_width, in_height, 0, 0,
+  				  in_width, in_height, prepare_width, prepare_height);
+  	assert(scaled_data != 0);
 
-	write_image(outimage_name, prepare_width, prepare_height, scaled_data, 3, prepare_width * 3, IMAGE_FORMAT_PNG);
-
+  	write_image(outimage_name, prepare_width, prepare_height, scaled_data, 3, prepare_width * 3, IMAGE_FORMAT_PNG);
+  } else {
+    scaled_data = image_data;
+    prepare_width = in_width;
+    prepare_height = in_height;
+  }
 	generate_metapixel_coefficients(&pixel, scaled_data, highest_coeffs);
 
 	free(scaled_data);
@@ -2270,8 +2295,10 @@ main (int argc, char *argv[])
 	    fprintf(tables_file, ")");
 	}
 	fprintf(tables_file, "))\n");
-
-	fclose(tables_file);
+  
+  if(!table_to_stdout){
+  	fclose(tables_file);
+  }
     }
     else if (mode == MODE_METAPIXEL
 	     || mode == MODE_BATCH)

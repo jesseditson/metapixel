@@ -4,7 +4,7 @@
 
 Summary: Metapixel Photomosaic Generator
 Name: metapixel
-Version: 1.0.2
+Version: 1.0.3
 Release: 1
 License: GNU General Public License
 Group: Applications/Multimedia
@@ -58,6 +58,8 @@ rm -rf %{buildroot}
 %{_bindir}/metapixel-sizesort
 
 %changelog
+* Sun April 15 2013 Jesse Ditson <jesse.ditson@gmail.com> 1.0.3
+- Allow calling of --prepare without output (don't scale), and without table (print output to stdout).
 * Sun Dec 10 2006 Mark Probst <schani@complang.tuwien.ac.at> 1.0.2
 - Update to 1.0.2
 * Sun Feb 19 2006 Mark Probst <schani@complang.tuwien.ac.at> 1.0.1
