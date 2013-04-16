@@ -1233,7 +1233,7 @@ paste_classic (mosaic_t *mosaic, char *input_name, char *output_name, int cheat)
 	{
 	    if (benchmark_rendering)
 		assert(mosaic->matches[y * metawidth + x].pixel->data != 0);
-
+      
 	    paste_metapixel(mosaic->matches[y * metawidth + x].pixel, out_image_data, out_image_width,
 			    small_height, x * small_width, 0);
 	    if (!benchmark_rendering)
@@ -1401,6 +1401,7 @@ generate_collage (char *input_name, char *output_name, float scale, int min_dist
 	    exit(1);
 	}
 
+  // TODO: write that we've used this file somewhere so we can find the image later.
 	paste_metapixel(match.pixel, out_image_data, in_image_width, in_image_height, x, y);
 
 	if (min_distance > 0)
@@ -1435,11 +1436,18 @@ read_tables (const char *library_dir)
     pools_t pools;
     allocator_t allocator;
     int dir_strlen = strlen(library_dir);
-    char tables_name[dir_strlen + 1 + strlen(TABLES_FILENAME) + 1];
-
-    strcpy(tables_name, library_dir);
-    strcat(tables_name, "/");
-    strcat(tables_name, TABLES_FILENAME);
+    int tables_name_len = dir_strlen + 1;
+    if(!strstr(library_dir,".mxt")){
+      tables_name_len = tables_name_len + strlen(TABLES_FILENAME) + 1;
+    }
+    char tables_name[tables_name_len];
+    if(strstr(library_dir,".mxt")){
+      strcpy(tables_name, library_dir);
+    } else {
+      strcpy(tables_name, library_dir);
+      strcat(tables_name, "/");
+      strcat(tables_name, TABLES_FILENAME);
+    }
 
     if (lisp_stream_init_path(&stream, tables_name) == 0)
 	return 0;
@@ -1473,13 +1481,18 @@ read_tables (const char *library_dir)
 		coefficient_with_index_t coeffs[NUM_COEFFS];
 		lisp_object_t *lst;
 		int channel, i;
-		char *filename = strip_path(lisp_string(vars[0]));
-
-		pixel->filename = (char*)malloc(dir_strlen + 1 + strlen(filename) + 1);
-
-		strcpy(pixel->filename, library_dir);
-		strcat(pixel->filename, "/");
-		strcat(pixel->filename, filename);
+    char *filename = lisp_string(vars[0]);
+    int filename_len = strlen(filename) + 1;
+		pixel->filename = (char*)malloc(filename_len);
+    if(!strstr(library_dir,".mxt")){
+      filename = strip_path(filename);
+      filename_len = dir_strlen + 1 + filename_len;
+  		strcpy(pixel->filename, library_dir);
+  		strcat(pixel->filename, "/");
+  		strcat(pixel->filename, filename);
+    } else {
+      strcpy(pixel->filename, filename);
+    }
 
 		for (channel = 0; channel < NUM_CHANNELS; ++channel)
 		    pixel->means[channel] = lisp_real(vars[3 + channel]);
@@ -2372,7 +2385,7 @@ main (int argc, char *argv[])
 	    forbid_reconstruction_radius = 0;
 	}
 	else
-	{
+	{ // TODO: handle a third option of just passing an MXT file.
 	    fprintf(stderr, "Error: you must give one of the option --library and --antimosaic.\n");
 	    return 1;
 	}
