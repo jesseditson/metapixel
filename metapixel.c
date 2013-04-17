@@ -1483,14 +1483,15 @@ read_tables (const char *library_dir)
 		int channel, i;
     char *filename = lisp_string(vars[0]);
     int filename_len = strlen(filename) + 1;
-		pixel->filename = (char*)malloc(filename_len);
     if(!strstr(library_dir,".mxt")){
       filename = strip_path(filename);
       filename_len = dir_strlen + 1 + filename_len;
+  		pixel->filename = (char*)malloc(filename_len);
   		strcpy(pixel->filename, library_dir);
   		strcat(pixel->filename, "/");
   		strcat(pixel->filename, filename);
     } else {
+  		pixel->filename = (char*)malloc(filename_len);
       strcpy(pixel->filename, filename);
     }
 
